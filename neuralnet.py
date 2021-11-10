@@ -121,7 +121,8 @@ class ConvNet(NeuralNet):
         model.add(Dropout(0.2))
         model.add(Dense(128, activation='relu'))
         
-        model.add(Dense(2, activation='softmax'))
+        # model.add(Dense(2, activation='softmax'))
+        model.add(Dense(1, activation='sigmoid'))
         
         model.compile(loss='binary_crossentropy', optimizer='adam', metrics = ['accuracy'])
         model.fit(self.train_features, self.train_labels, batch_size=50, epochs=3, verbose=1)
@@ -130,6 +131,7 @@ class ConvNet(NeuralNet):
     def predict(self, test_features):
         self.test_features = test_features.reshape(test_features.shape[0], test_features.shape[1], test_features.shape[2], 1)
         predictions = self.model.predict(self.test_features)
+        # print(predictions[0:5])
         predictions = predictions.flatten().astype(int)
         self.predictions = predictions
         return predictions
