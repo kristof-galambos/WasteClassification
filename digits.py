@@ -1,10 +1,12 @@
 
 import numpy as np
+import keras
 # from keras.utils import to_categorical
 from sklearn.datasets import load_digits
 from sklearn.model_selection import train_test_split
-from neuralnet import NeuralNet
+from neuralnet import NeuralNet, ConvNet
 
+################ getting the smaller dataset ##############################
 digits = load_digits()
 X = digits.data.reshape(-1, 8, 8)
 y = digits.target
@@ -19,5 +21,21 @@ print(y_train.shape)
 nn = NeuralNet()
 nn.train(X_train, y_train)
 y_pred = nn.predict(X_test)
-print(nn.get_accuracy_score(y_test))
+print('The accuracy score is: {:.4f}'.format(nn.get_accuracy_score(y_test)))
+print('The confusion matrix is:')
 nn.print_confusion_matrix(y_test)
+
+
+############################## getting the larger dataset ######################
+(x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
+X_train = np.array([X_train[i] for i in range(len(X_train)) if y_train[i] == 0 or y_train[i] == 1])
+y_train = np.array([y_train[i] for i in range(len(y_train)) if y_train[i] == 0 or y_train[i] == 1])
+X_test = np.array([X_test[i] for i in range(len(X_test)) if y_test[i] == 0 or y_test[i] == 1])
+y_test = np.array([y_test[i] for i in range(len(y_test)) if y_test[i] == 0 or y_test[i] == 1])
+
+cnn = ConvNet()
+cnn.train(X_train, y_train)
+y_pred = cnn.predict(X_test)
+print('The accuracy score is: {:.4f}'.format(cnn.get_accuracy_score(y_test)))
+print('The confusion matrix is:')
+cnn.print_confusion_matrix(y_test)

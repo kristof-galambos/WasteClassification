@@ -46,9 +46,8 @@ class NeuralNet():
         self.train_features = np.array([x.flatten() for x in self.train_features]) # need to flatten for dense network
         
         model = Sequential()
-        print(n)
+        # print(n)
         model.add(Dense(n, input_dim=dimensions, activation='relu'))
-        # model.add(Dense(252, input_dim=64, activation='relu'))
         model.add(Dense(1000, activation='relu'))
         model.add(Dense(1000, activation='relu'))
         model.add(Dense(1, activation='sigmoid'))
@@ -60,7 +59,7 @@ class NeuralNet():
     def predict(self, test_features):
         self.test_features = np.array([x.flatten() for x in test_features]) 
         predictions = self.model.predict(self.test_features)
-        predictions = [np.argmax(x) for x in predictions]
+        predictions = predictions.flatten().astype(int)
         self.predictions = predictions
         return predictions
     
