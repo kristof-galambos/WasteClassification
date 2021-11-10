@@ -15,8 +15,9 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 # from tensorflow.python.keras.utils import to_categorical
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, Flatten
-from keras.layers import Conv2D, MaxPooling2D
-from keras.layers.normalization import BatchNormalization
+from tensorflow.keras.layers import Conv2D, MaxPooling2D
+from tensorflow.keras.layers import BatchNormalization
+# from keras.layers.normalization import BatchNormalization
 # from keras.utils import to_categorical
 
 
@@ -89,9 +90,12 @@ class ConvNet(NeuralNet):
         n = self.train_features.shape[0]
         height = self.train_features.shape[1]
         width = self.train_features.shape[2]
-        colour_channels = self.train_features.shape[3] # this is probably 3
-        dimensions = height * width * colour_channels
+        try:
+            colour_channels = self.train_features.shape[3] # this is probably 3
+        except:
+            colour_channels = 1
         # don't need to flatten for convolutional network
+        self.train_features = self.train_features.reshape(n, height, width, colour_channels)
         
         model = Sequential()
         model.add(Conv2D(32, kernel_size = (3, 3), activation='relu', input_shape=(height, width, colour_channels)))
@@ -100,15 +104,17 @@ class ConvNet(NeuralNet):
         model.add(Conv2D(64, kernel_size=(3,3), activation='relu'))
         model.add(MaxPooling2D(pool_size=(2,2)))
         model.add(BatchNormalization())
-        model.add(Conv2D(96, kernel_size=(3,3), activation='relu'))
-        model.add(MaxPooling2D(pool_size=(2,2)))
-        model.add(BatchNormalization())
-        model.add(Conv2D(96, kernel_size=(3,3), activation='relu'))
-        model.add(MaxPooling2D(pool_size=(2,2)))
-        model.add(BatchNormalization())
+        # model.add(Conv2D(96, kernel_size=(3,3), activation='relu'))
         model.add(Conv2D(64, kernel_size=(3,3), activation='relu'))
         model.add(MaxPooling2D(pool_size=(2,2)))
         model.add(BatchNormalization())
+        # # model.add(Conv2D(96, kernel_size=(3,3), activation='relu'))
+        # model.add(Conv2D(64, kernel_size=(3,3), activation='relu'))
+        # model.add(MaxPooling2D(pool_size=(2,2)))
+        # model.add(BatchNormalization())
+        # model.add(Conv2D(64, kernel_size=(3,3), activation='relu'))
+        # model.add(MaxPooling2D(pool_size=(2,2)))
+        # model.add(BatchNormalization())
         model.add(Dropout(0.2))
         model.add(Flatten())
         model.add(Dense(256, activation='relu'))
@@ -118,5 +124,12 @@ class ConvNet(NeuralNet):
         model.add(Dense(2, activation='softmax'))
         
         model.compile(loss='binary_crossentropy', optimizer='adam', metrics = ['accuracy'])
-        
+        model.fit(self.train_features, self.train_labels, batch_size=50, epochs=3, verbose=1)
         self.model = model
+        
+    def predict(self, test_features):
+        self.test_features = test_features.reshape(test_features.shape[0], test_features.shape[1], test_features.shape[2], 1)
+        predictions = self.model.predict(self.test_features)
+        predictions = predictions.flatten().astype(int)
+        self.predictions = predictions
+        return predictions
