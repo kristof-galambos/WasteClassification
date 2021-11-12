@@ -1,7 +1,7 @@
 
 import cv2
 import os
-from neuralnet import NeuralNet
+from neuralnet import NeuralNet, ConvNet
 import random
 
 # read in and prepare the data
@@ -14,8 +14,8 @@ basepath_train_r = 'DATASET/TRAIN/R'
 basepath_test_o = 'DATASET/TEST/O'
 basepath_test_r = 'DATASET/TEST/R'
 
-# dim = (185, 250)
-dim = (18, 25)
+dim = (185, 250) # for the convolutional neural net
+# dim = (18, 1) # for the dense neural net
 
 
 def read_pictures(basepath):
@@ -28,12 +28,14 @@ def read_pictures(basepath):
             break
     return dataset
 
+print('Reading in images...')
 train_features_o = read_pictures(basepath_train_o)
 train_features_r = read_pictures(basepath_train_r)
 test_features_o = read_pictures(basepath_test_o)
 test_features_r = read_pictures(basepath_test_r)
 train_features = train_features_o + train_features_r
 test_features = test_features_o + test_features_r
+print('Reading images finished')
 
 #create train labels with 1000 0-s and 1000 1-s
 def create_train_labels():
@@ -77,10 +79,20 @@ print(test_labels_shuffled[100])
 #meg kell keverni, hogy ne egymás után jöjjenek az O és R képek
 #n x width x 3 legyen az összes kép
 
-# use the neural net for training and prediction
-nn = NeuralNet()
-nn.train(train_features, train_labels)
-predicted_labels = nn.predict(test_features)
-print('The accuracy score is: {:.4f}'.format(nn.get_accuracy_score(test_labels)))
+
+# # use the neural net for training and prediction
+# nn = NeuralNet()
+# nn.train(train_features, train_labels)
+# predicted_labels = nn.predict(test_features)
+# print('The accuracy score is: {:.4f}'.format(nn.get_accuracy_score(test_labels)))
+# print('The confusion matrix is:')
+# nn.print_confusion_matrix(test_labels)
+
+
+# use the convolutional neural net for training and prediction
+cnn = ConvNet()
+cnn.train(train_features, train_labels)
+predicted_labels = cnn.predict(test_features)
+print('The accuracy score is: {:.4f}'.format(cnn.get_accuracy_score(test_labels)))
 print('The confusion matrix is:')
-nn.print_confusion_matrix(test_labels)
+cnn.print_confusion_matrix(test_labels)

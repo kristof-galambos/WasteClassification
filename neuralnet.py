@@ -84,8 +84,8 @@ class ConvNet(NeuralNet):
         super().__init__()
         
     def train(self, train_features, train_labels):
-        self.train_features = train_features
-        self.train_labels = train_labels
+        self.train_features = np.array(train_features)
+        self.train_labels = np.array(train_labels)
         # assume train_features has shape n x height x width x 3
         n = self.train_features.shape[0]
         height = self.train_features.shape[1]
@@ -124,12 +124,19 @@ class ConvNet(NeuralNet):
         # model.add(Dense(2, activation='softmax'))
         model.add(Dense(1, activation='sigmoid'))
         
+        print(self.train_features.shape)
+        print(self.train_labels.shape)
+        
         model.compile(loss='binary_crossentropy', optimizer='adam', metrics = ['accuracy'])
         model.fit(self.train_features, self.train_labels, batch_size=50, epochs=3, verbose=1)
         self.model = model
         
     def predict(self, test_features):
-        self.test_features = test_features.reshape(test_features.shape[0], test_features.shape[1], test_features.shape[2], 1)
+        test_features = np.array(test_features)
+        try:
+            self.test_features = test_features.reshape(test_features.shape[0], test_features.shape[1], test_features.shape[2], 1)
+        except:
+            self.test_features = test_features.reshape(test_features.shape[0], test_features.shape[1], test_features.shape[2], 3)
         predictions = self.model.predict(self.test_features)
         # print(predictions[0:5])
         predictions = predictions.flatten().astype(int)
